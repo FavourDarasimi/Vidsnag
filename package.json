@@ -1,0 +1,51 @@
+{
+  "name": "vidsnag",
+  "version": "1.0.0",
+  "description": "Video downloader with CLI and Web UI powered by yt-dlp and ffmpeg",
+  "main": "dist/core/index.js",
+  "types": "dist/core/index.d.ts",
+  "bin": {
+    "vidsnag": "./dist/cli/index.js"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build && npm run build:cli",
+    "build:cli": "tsup",
+    "start": "next start",
+    "cli": "tsx src/cli/index.ts",
+    "lint": "next lint"
+  },
+  "keywords": [
+    "video-downloader",
+    "yt-dlp",
+    "cli",
+    "nextjs",
+    "ffmpeg"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "cli-progress": "^3.12.0",
+    "clsx": "^2.1.1",
+    "commander": "^15.1.0",
+    "lucide-react": "^1.77.0",
+    "next": "^14.2.35",
+    "picocolors": "^1.1.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwind-merge": "^3.7.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/cli-progress": "^3.11.6",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "autoprefixer": "^10.7.0",
+    "postcss": "^8.5.33",
+    "tailwindcss": "^3.4.17",
+    "tsup": "^9.0.0",
+    "tsx": "^4.23.15",
+    "typescript": "^5.6.3"
+  }
+}
