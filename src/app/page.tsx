@@ -11,8 +11,6 @@ import {
   Clock,
   User,
   ExternalLink,
-  Moon,
-  Sun,
   Loader2,
   Trash2,
   Save,
@@ -71,9 +69,6 @@ export default function HomePage() {
   // Session history
   const [history, setHistory] = useState<HistoryItem[]>([]);
 
-  // Dark mode
-  const [isDark, setIsDark] = useState(true);
-
   // System health
   const [sysHealth, setSysHealth] = useState<{
     healthy: boolean;
@@ -84,18 +79,7 @@ export default function HomePage() {
 
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  // Initial theme & history setup
   useEffect(() => {
-    // Check local storage for theme
-    const savedTheme = localStorage.getItem('vidsnag_theme');
-    if (savedTheme === 'light') {
-      setIsDark(false);
-      document.documentElement.classList.remove('dark');
-    } else {
-      setIsDark(true);
-      document.documentElement.classList.add('dark');
-    }
-
     // Load session history
     try {
       const savedHistory = sessionStorage.getItem('vidsnag_history');
@@ -120,18 +104,6 @@ export default function HomePage() {
         // Non-critical
       });
   }, []);
-
-  const toggleDarkMode = () => {
-    const nextDark = !isDark;
-    setIsDark(nextDark);
-    if (nextDark) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('vidsnag_theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('vidsnag_theme', 'light');
-    }
-  };
 
   const handleFetchInfo = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -332,32 +304,29 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0b0f19] text-slate-900 dark:text-slate-100 transition-colors">
+    <div className="min-h-screen bg-black text-neutral-100 selection:bg-orange-500 selection:text-black">
       {/* Navigation / Header */}
-      <header className="border-b border-slate-200 dark:border-slate-800/80 bg-white/70 dark:bg-[#0f172a]/70 backdrop-blur-md sticky top-0 z-40">
+      <header className="border-b border-neutral-900 bg-black/90 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/20 text-white font-black text-xl tracking-wider">
+            <div className="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center shadow-lg shadow-orange-500/20 text-black font-black text-xl tracking-wider">
               V
             </div>
             <div>
-              <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+              <span className="font-extrabold text-xl tracking-tight text-orange-500">
                 vidsnag
               </span>
-              <span className="text-xs ml-2 px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-semibold border border-indigo-500/20">
+              <span className="text-xs ml-2 px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-400 font-semibold border border-orange-500/25">
                 v1.0
               </span>
             </div>
           </div>
 
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={toggleDarkMode}
-              className="p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors"
-              aria-label="Toggle theme"
-            >
-              {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
-            </button>
+          <div className="flex items-center space-x-3 text-xs text-neutral-400">
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-neutral-900 border border-neutral-800 font-mono">
+              <span className="w-2 h-2 rounded-full bg-orange-500 mr-2 animate-pulse" />
+              yt-dlp + ffmpeg
+            </span>
           </div>
         </div>
       </header>
@@ -366,7 +335,7 @@ export default function HomePage() {
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-8">
         {/* System Health Alert (if degraded) */}
         {sysHealth && !sysHealth.healthy && (
-          <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-800 dark:text-amber-200 flex items-start space-x-3">
+          <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-200 flex items-start space-x-3">
             <ShieldAlert className="w-5 h-5 flex-shrink-0 mt-0.5 text-amber-500" />
             <div className="text-sm">
               <span className="font-semibold">Tool dependencies missing:</span>{' '}
@@ -379,19 +348,19 @@ export default function HomePage() {
 
         {/* Hero Section */}
         <div className="text-center space-y-3 pt-4">
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
             Download Any Video or Audio
           </h1>
-          <p className="text-slate-600 dark:text-slate-400 max-w-xl mx-auto text-sm sm:text-base">
-            Clean, high-speed downloader powered by <code className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-xs font-mono">yt-dlp</code> and <code className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-xs font-mono">ffmpeg</code>. Supports YouTube, Vimeo, TikTok, SoundCloud, and 1,000+ sites.
+          <p className="text-neutral-400 max-w-xl mx-auto text-sm sm:text-base">
+            Clean, high-speed downloader powered by <code className="px-1.5 py-0.5 rounded bg-neutral-900 border border-neutral-800 text-xs font-mono text-orange-400">yt-dlp</code> and <code className="px-1.5 py-0.5 rounded bg-neutral-900 border border-neutral-800 text-xs font-mono text-orange-400">ffmpeg</code>. Supports YouTube, Vimeo, TikTok, SoundCloud, and 1,000+ sites.
           </p>
         </div>
 
         {/* Input Bar Card */}
-        <section className="bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200 dark:border-slate-800 p-2 sm:p-3 shadow-xl shadow-slate-200/50 dark:shadow-none">
+        <section className="bg-neutral-950 rounded-2xl border border-neutral-800 p-2 sm:p-3 shadow-xl shadow-black/40 focus-within:border-orange-500/60 transition-colors">
           <form onSubmit={handleFetchInfo} className="flex flex-col sm:flex-row gap-2">
             <div className="relative flex-1">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-500">
                 <Search className="w-5 h-5" />
               </div>
               <input
@@ -399,7 +368,7 @@ export default function HomePage() {
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="Paste video URL here (e.g., https://www.youtube.com/watch?v=...)"
-                className="w-full pl-11 pr-4 py-3 bg-transparent rounded-xl text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 placeholder-slate-400"
+                className="w-full pl-11 pr-4 py-3 bg-transparent rounded-xl text-sm sm:text-base focus:outline-none text-neutral-100 placeholder-neutral-500"
                 aria-label="Video URL"
                 required
               />
@@ -407,16 +376,16 @@ export default function HomePage() {
             <button
               type="submit"
               disabled={isFetchingInfo || !url.trim()}
-              className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-500/50 text-white font-medium rounded-xl text-sm sm:text-base flex items-center justify-center space-x-2 transition-all shadow-md shadow-indigo-600/20 disabled:shadow-none"
+              className="px-6 py-3 bg-orange-500 hover:bg-orange-600 disabled:bg-orange-500/40 text-black font-bold rounded-xl text-sm sm:text-base flex items-center justify-center space-x-2 transition-all shadow-md shadow-orange-500/20 disabled:shadow-none"
             >
               {isFetchingInfo ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin text-black" />
                   <span>Fetching...</span>
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4" />
+                  <Sparkles className="w-4 h-4 text-black" />
                   <span>Fetch Info</span>
                 </>
               )}
@@ -426,7 +395,7 @@ export default function HomePage() {
 
         {/* Error Message */}
         {infoError && (
-          <div className="p-4 rounded-xl border border-rose-500/30 bg-rose-500/10 text-rose-800 dark:text-rose-300 flex items-start space-x-3 text-sm animate-fadeIn">
+          <div className="p-4 rounded-xl border border-rose-500/30 bg-rose-500/10 text-rose-300 flex items-start space-x-3 text-sm animate-fadeIn">
             <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5 text-rose-500" />
             <div className="flex-1">
               <p className="font-semibold">Unable to fetch video</p>
@@ -437,10 +406,10 @@ export default function HomePage() {
 
         {/* Video Info Preview & Options Card */}
         {videoInfo && (
-          <section className="bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-xl shadow-slate-200/50 dark:shadow-none space-y-6">
+          <section className="bg-neutral-950 rounded-2xl border border-neutral-800 p-5 sm:p-6 shadow-xl shadow-black/40 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
               {/* Thumbnail with duration */}
-              <div className="md:col-span-5 relative group rounded-xl overflow-hidden bg-slate-950 aspect-video flex items-center justify-center border border-slate-200 dark:border-slate-800">
+              <div className="md:col-span-5 relative group rounded-xl overflow-hidden bg-black aspect-video flex items-center justify-center border border-neutral-800">
                 {videoInfo.thumbnail ? (
                   /* eslint-disable-next-line @next/next/no-img-element */
                   <img
@@ -449,10 +418,10 @@ export default function HomePage() {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 ) : (
-                  <Film className="w-12 h-12 text-slate-500" />
+                  <Film className="w-12 h-12 text-neutral-600" />
                 )}
                 {videoInfo.durationString && (
-                  <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-black/80 backdrop-blur-sm text-white text-xs font-mono font-medium flex items-center space-x-1">
+                  <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-black/85 backdrop-blur-sm text-orange-400 text-xs font-mono font-medium flex items-center space-x-1 border border-neutral-800">
                     <Clock className="w-3 h-3" />
                     <span>{videoInfo.durationString}</span>
                   </div>
@@ -462,18 +431,18 @@ export default function HomePage() {
               {/* Video Title & Metadata */}
               <div className="md:col-span-7 space-y-4">
                 <div>
-                  <h2 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white line-clamp-2">
+                  <h2 className="text-lg sm:text-xl font-bold tracking-tight text-white line-clamp-2">
                     {videoInfo.title}
                   </h2>
-                  <div className="flex items-center space-x-2 text-xs text-slate-500 dark:text-slate-400 mt-1.5">
-                    <User className="w-3.5 h-3.5" />
+                  <div className="flex items-center space-x-2 text-xs text-neutral-400 mt-1.5">
+                    <User className="w-3.5 h-3.5 text-orange-500" />
                     <span>{videoInfo.uploader}</span>
                     <span>•</span>
                     <a
                       href={videoInfo.webpageUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center space-x-1 text-indigo-500 hover:underline"
+                      className="inline-flex items-center space-x-1 text-orange-400 hover:text-orange-300 hover:underline"
                     >
                       <span>Original Link</span>
                       <ExternalLink className="w-3 h-3" />
@@ -482,20 +451,20 @@ export default function HomePage() {
                 </div>
 
                 {/* Configuration Options */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-neutral-850">
                   {/* Format selector */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
                       Format
                     </label>
-                    <div className="flex rounded-lg bg-slate-100 dark:bg-slate-800/80 p-1 border border-slate-200 dark:border-slate-700/60">
+                    <div className="flex rounded-lg bg-neutral-900 p-1 border border-neutral-800">
                       <button
                         type="button"
                         onClick={() => setSelectedFormat('mp4')}
                         className={`flex-1 py-1.5 px-3 rounded-md text-xs sm:text-sm font-medium flex items-center justify-center space-x-1.5 transition-all ${
                           selectedFormat === 'mp4'
-                            ? 'bg-white dark:bg-indigo-600 text-slate-900 dark:text-white shadow-sm'
-                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                            ? 'bg-orange-500 text-black font-bold shadow-sm'
+                            : 'text-neutral-400 hover:text-white'
                         }`}
                       >
                         <Film className="w-3.5 h-3.5" />
@@ -506,8 +475,8 @@ export default function HomePage() {
                         onClick={() => setSelectedFormat('webm')}
                         className={`flex-1 py-1.5 px-3 rounded-md text-xs sm:text-sm font-medium flex items-center justify-center space-x-1.5 transition-all ${
                           selectedFormat === 'webm'
-                            ? 'bg-white dark:bg-indigo-600 text-slate-900 dark:text-white shadow-sm'
-                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                            ? 'bg-orange-500 text-black font-bold shadow-sm'
+                            : 'text-neutral-400 hover:text-white'
                         }`}
                       >
                         <Film className="w-3.5 h-3.5" />
@@ -518,8 +487,8 @@ export default function HomePage() {
                         onClick={() => setSelectedFormat('mp3')}
                         className={`flex-1 py-1.5 px-3 rounded-md text-xs sm:text-sm font-medium flex items-center justify-center space-x-1.5 transition-all ${
                           selectedFormat === 'mp3'
-                            ? 'bg-white dark:bg-indigo-600 text-slate-900 dark:text-white shadow-sm'
-                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                            ? 'bg-orange-500 text-black font-bold shadow-sm'
+                            : 'text-neutral-400 hover:text-white'
                         }`}
                       >
                         <Music className="w-3.5 h-3.5" />
@@ -530,14 +499,14 @@ export default function HomePage() {
 
                   {/* Quality selector */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
                       Quality
                     </label>
                     <select
                       value={selectedQuality}
                       onChange={(e) => setSelectedQuality(e.target.value)}
                       disabled={selectedFormat === 'mp3'}
-                      className="w-full py-2 px-3 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
+                      className="w-full py-2 px-3 rounded-lg bg-neutral-900 border border-neutral-800 text-xs sm:text-sm text-neutral-100 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50"
                     >
                       {selectedFormat === 'mp3' ? (
                         <option value="best">Highest Audio Quality (VBR 0)</option>
@@ -557,9 +526,9 @@ export default function HomePage() {
                   <button
                     onClick={handleStartDownload}
                     disabled={downloadProgress.status === 'starting' || downloadProgress.status === 'downloading' || downloadProgress.status === 'processing'}
-                    className="w-full py-3 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-semibold rounded-xl text-sm sm:text-base flex items-center justify-center space-x-2 shadow-lg shadow-indigo-600/25 transition-all disabled:opacity-60"
+                    className="w-full py-3 bg-orange-500 hover:bg-orange-600 text-black font-bold rounded-xl text-sm sm:text-base flex items-center justify-center space-x-2 shadow-lg shadow-orange-500/20 transition-all disabled:opacity-50"
                   >
-                    <Download className="w-4 h-4" />
+                    <Download className="w-4 h-4 text-black" />
                     <span>Download {selectedFormat.toUpperCase()}</span>
                   </button>
                 </div>
@@ -570,7 +539,7 @@ export default function HomePage() {
 
         {/* Live Download Status & Progress (SSE) */}
         {downloadProgress.status !== 'idle' && (
-          <section className="bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-xl shadow-slate-200/50 dark:shadow-none space-y-4 animate-fadeIn">
+          <section className="bg-neutral-950 rounded-2xl border border-neutral-800 p-5 sm:p-6 shadow-xl shadow-black/40 space-y-4 animate-fadeIn">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 {downloadProgress.status === 'completed' ? (
@@ -578,7 +547,7 @@ export default function HomePage() {
                 ) : downloadProgress.status === 'error' ? (
                   <AlertCircle className="w-5 h-5 text-rose-500" />
                 ) : (
-                  <Loader2 className="w-5 h-5 text-indigo-500 animate-spin" />
+                  <Loader2 className="w-5 h-5 text-orange-500 animate-spin" />
                 )}
                 <span className="font-semibold text-sm sm:text-base">
                   {downloadProgress.status === 'starting' && 'Connecting to server...'}
@@ -588,36 +557,36 @@ export default function HomePage() {
                   {downloadProgress.status === 'error' && 'Download Failed'}
                 </span>
               </div>
-              <span className="font-mono text-sm font-bold text-indigo-600 dark:text-indigo-400">
+              <span className="font-mono text-sm font-bold text-orange-400">
                 {Math.round(downloadProgress.percent)}%
               </span>
             </div>
 
             {/* Progress Bar */}
-            <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-3 overflow-hidden border border-slate-200 dark:border-slate-700/50">
+            <div className="w-full bg-neutral-900 rounded-full h-3 overflow-hidden border border-neutral-800">
               <div
                 className={`h-full transition-all duration-300 ease-out ${
                   downloadProgress.status === 'error'
                     ? 'bg-rose-500'
                     : downloadProgress.status === 'completed'
                     ? 'bg-emerald-500'
-                    : 'bg-gradient-to-r from-indigo-500 to-violet-500'
+                    : 'bg-orange-500'
                 }`}
                 style={{ width: `${Math.max(2, Math.min(100, downloadProgress.percent))}%` }}
               />
             </div>
 
             {/* Progress details: speed, ETA, size */}
-            <div className="flex flex-wrap items-center justify-between text-xs text-slate-500 dark:text-slate-400 gap-2">
+            <div className="flex flex-wrap items-center justify-between text-xs text-neutral-400 gap-2">
               <div className="flex items-center space-x-3">
                 {downloadProgress.speed && (
                   <span>
-                    Speed: <strong className="text-slate-700 dark:text-slate-200">{downloadProgress.speed}</strong>
+                    Speed: <strong className="text-neutral-200">{downloadProgress.speed}</strong>
                   </span>
                 )}
                 {downloadProgress.eta && (
                   <span>
-                    ETA: <strong className="text-slate-700 dark:text-slate-200">{downloadProgress.eta}</strong>
+                    ETA: <strong className="text-neutral-200">{downloadProgress.eta}</strong>
                   </span>
                 )}
               </div>
@@ -631,7 +600,7 @@ export default function HomePage() {
 
             {/* Error detail */}
             {downloadProgress.status === 'error' && (
-              <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-700 dark:text-rose-300 text-xs">
+              <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs">
                 {downloadProgress.error}
               </div>
             )}
@@ -642,9 +611,9 @@ export default function HomePage() {
                 <a
                   href={downloadProgress.downloadUrl}
                   download={downloadProgress.filename}
-                  className="w-full sm:w-auto flex-1 py-3 px-6 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm flex items-center justify-center space-x-2 shadow-lg shadow-emerald-600/20 transition-all"
+                  className="w-full sm:w-auto flex-1 py-3 px-6 bg-orange-500 hover:bg-orange-600 text-black font-bold rounded-xl text-sm flex items-center justify-center space-x-2 shadow-lg shadow-orange-500/20 transition-all"
                 >
-                  <Save className="w-4 h-4" />
+                  <Save className="w-4 h-4 text-black" />
                   <span>Save File to Device</span>
                 </a>
                 <button
@@ -659,7 +628,7 @@ export default function HomePage() {
                       totalBytes: 0,
                     });
                   }}
-                  className="w-full sm:w-auto py-3 px-4 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-medium transition-colors flex items-center justify-center space-x-1"
+                  className="w-full sm:w-auto py-3 px-4 rounded-xl border border-neutral-800 hover:bg-neutral-900 text-neutral-300 text-sm font-medium transition-colors flex items-center justify-center space-x-1"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
                   <span>Start Another</span>
@@ -673,15 +642,15 @@ export default function HomePage() {
         {history.length > 0 && (
           <section className="space-y-4 pt-4">
             <div className="flex items-center justify-between">
-              <h3 className="font-bold text-base sm:text-lg text-slate-900 dark:text-white flex items-center space-x-2">
+              <h3 className="font-bold text-base sm:text-lg text-white flex items-center space-x-2">
                 <span>Recent Downloads</span>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                <span className="text-xs px-2 py-0.5 rounded-full bg-neutral-900 border border-neutral-800 text-orange-400">
                   {history.length}
                 </span>
               </h3>
               <button
                 onClick={handleClearHistory}
-                className="text-xs text-slate-500 hover:text-rose-500 flex items-center space-x-1 transition-colors"
+                className="text-xs text-neutral-500 hover:text-rose-400 flex items-center space-x-1 transition-colors"
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 <span>Clear session</span>
@@ -692,18 +661,18 @@ export default function HomePage() {
               {history.map((item) => (
                 <div
                   key={item.id}
-                  className="bg-white dark:bg-slate-900/80 rounded-xl border border-slate-200 dark:border-slate-800/80 p-3 sm:p-4 flex items-center justify-between gap-3 hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
+                  className="bg-neutral-950 rounded-xl border border-neutral-800/80 p-3 sm:p-4 flex items-center justify-between gap-3 hover:border-neutral-700 transition-colors"
                 >
                   <div className="flex items-center space-x-3 min-w-0">
-                    <div className="w-9 h-9 rounded-lg bg-indigo-500/10 text-indigo-500 flex items-center justify-center flex-shrink-0">
+                    <div className="w-9 h-9 rounded-lg bg-orange-500/10 text-orange-400 flex items-center justify-center flex-shrink-0">
                       {item.format === 'mp3' ? <Music className="w-4 h-4" /> : <Film className="w-4 h-4" />}
                     </div>
                     <div className="min-w-0">
-                      <p className="font-medium text-xs sm:text-sm text-slate-900 dark:text-slate-100 truncate">
+                      <p className="font-medium text-xs sm:text-sm text-neutral-100 truncate">
                         {item.title}
                       </p>
-                      <div className="flex items-center space-x-2 text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                        <span className="uppercase font-semibold text-indigo-500">{item.format}</span>
+                      <div className="flex items-center space-x-2 text-[11px] text-neutral-400 mt-0.5">
+                        <span className="uppercase font-semibold text-orange-400">{item.format}</span>
                         {item.quality && <span>• {item.quality}</span>}
                         <span>• {formatFileSize(item.fileSize)}</span>
                       </div>
@@ -713,7 +682,7 @@ export default function HomePage() {
                   <a
                     href={item.downloadUrl}
                     download={item.filename}
-                    className="p-2 sm:px-3 sm:py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 text-slate-700 dark:text-slate-200 text-xs font-medium flex items-center space-x-1.5 transition-colors flex-shrink-0"
+                    className="p-2 sm:px-3 sm:py-1.5 rounded-lg bg-neutral-900 hover:bg-orange-500 hover:text-black text-neutral-200 text-xs font-medium flex items-center space-x-1.5 transition-colors flex-shrink-0"
                     title="Download file"
                   >
                     <Download className="w-3.5 h-3.5" />
@@ -726,24 +695,24 @@ export default function HomePage() {
         )}
 
         {/* CLI Quick Reference Section */}
-        <section className="bg-slate-100 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 text-xs text-slate-600 dark:text-slate-400 space-y-2">
-          <div className="flex items-center space-x-2 font-semibold text-slate-900 dark:text-slate-200">
-            <Terminal className="w-4 h-4 text-indigo-500" />
+        <section className="bg-neutral-950 rounded-2xl border border-neutral-800 p-5 text-xs text-neutral-400 space-y-2">
+          <div className="flex items-center space-x-2 font-semibold text-neutral-200">
+            <Terminal className="w-4 h-4 text-orange-500" />
             <span>Prefer the Terminal? vidsnag CLI</span>
           </div>
           <p>
             You can also run vidsnag directly from your command line:
           </p>
-          <div className="bg-slate-900 text-slate-200 font-mono p-3 rounded-lg text-xs overflow-x-auto space-y-1">
-            <div><span className="text-emerald-400">$</span> vidsnag &quot;https://www.youtube.com/watch?v=...&quot;</div>
-            <div><span className="text-emerald-400">$</span> vidsnag &quot;https://...&quot; --format mp3</div>
-            <div><span className="text-emerald-400">$</span> vidsnag info &quot;https://...&quot;</div>
+          <div className="bg-black text-neutral-200 font-mono p-3 rounded-lg text-xs overflow-x-auto space-y-1 border border-neutral-800">
+            <div><span className="text-orange-500">$</span> vidsnag &quot;https://www.youtube.com/watch?v=...&quot;</div>
+            <div><span className="text-orange-500">$</span> vidsnag &quot;https://...&quot; --format mp3</div>
+            <div><span className="text-orange-500">$</span> vidsnag info &quot;https://...&quot;</div>
           </div>
         </section>
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200 dark:border-slate-800/80 mt-16 py-6 text-center text-xs text-slate-500 dark:text-slate-500">
+      <footer className="border-t border-neutral-900 mt-16 py-6 text-center text-xs text-neutral-500">
         <p>
           vidsnag — Open-source media downloader wrapper. Please ensure you have the right to download any content.
         </p>
