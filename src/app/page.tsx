@@ -18,6 +18,8 @@ import {
   Sparkles,
   Terminal,
   ShieldAlert,
+  Copy,
+  Check,
 } from 'lucide-react';
 import { VideoInfo } from '@/core/types';
 
@@ -76,6 +78,16 @@ export default function HomePage() {
     ffmpeg: boolean;
     message?: string;
   } | null>(null);
+
+  const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
+
+  const handleCopy = (cmd: string, idx: number) => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(cmd).catch(() => {});
+      setCopiedIdx(idx);
+      setTimeout(() => setCopiedIdx(null), 1800);
+    }
+  };
 
   const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -340,7 +352,7 @@ export default function HomePage() {
             Download Any Video or Audio
           </h1>
           <p className="text-neutral-400 max-w-xl mx-auto text-sm sm:text-base">
-            Clean, high-speed downloader powered by <code className="px-1.5 py-0.5 rounded bg-neutral-900 border border-neutral-800 text-xs font-mono text-orange-400">yt-dlp</code> and <code className="px-1.5 py-0.5 rounded bg-neutral-900 border border-neutral-800 text-xs font-mono text-orange-400">ffmpeg</code>. Supports YouTube, Vimeo, TikTok, SoundCloud, and 1,000+ sites.
+            Sleek, high-speed downloader powered by <code className="px-1.5 py-0.5 rounded bg-neutral-900 border border-neutral-800 text-xs font-mono text-orange-400">yt-dlp</code> and <code className="px-1.5 py-0.5 rounded bg-neutral-900 border border-neutral-800 text-xs font-mono text-orange-400">ffmpeg</code>. Supports YouTube, Vimeo, TikTok, SoundCloud, and 1,000+ sites.
           </p>
         </div>
 
@@ -379,6 +391,99 @@ export default function HomePage() {
               )}
             </button>
           </form>
+        </section>
+
+        {/* Terminal Component directly under link input */}
+        <section className="rounded-2xl border border-neutral-800 bg-[#080808] overflow-hidden shadow-2xl shadow-black/70">
+          {/* Terminal Window Title Bar */}
+          <div className="bg-neutral-900/95 border-b border-neutral-800/80 px-4 py-2.5 flex items-center justify-between select-none">
+            <div className="flex items-center space-x-2">
+              <span className="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm" />
+              <span className="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm" />
+              <span className="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm" />
+            </div>
+            <div className="flex items-center space-x-2 text-xs text-neutral-400 font-mono">
+              <Terminal className="w-3.5 h-3.5 text-orange-500" />
+              <span>vidsnag</span>
+            </div>
+            <div className="w-12 text-right">
+              <span className="text-[10px] text-neutral-500 font-mono uppercase tracking-wider">bash</span>
+            </div>
+          </div>
+
+          {/* Terminal Body */}
+          <div className="p-4 sm:p-5 font-mono text-xs sm:text-sm text-neutral-200 space-y-3.5 overflow-x-auto">
+            {/* Comment line */}
+            <div className="text-neutral-500 text-[11px] sm:text-xs">
+              # You can also download directly from your terminal
+            </div>
+
+            {/* Command 1 */}
+            <div className="flex items-start justify-between group">
+              <div className="flex items-baseline space-x-2 flex-wrap">
+                <span className="text-emerald-400 font-bold">vidsnag</span>
+                <span className="text-neutral-500">:</span>
+                <span className="text-blue-400 font-semibold">~</span>
+                <span className="text-orange-500 font-bold">$</span>
+                <span className="text-neutral-100">
+                  <span className="text-orange-400 font-semibold">vidsnag</span> &quot;https://www.youtube.com/watch?v=...&quot;
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleCopy('vidsnag "https://www.youtube.com/watch?v=..."', 1)}
+                className="opacity-40 group-hover:opacity-100 text-neutral-400 hover:text-orange-400 transition-opacity p-1 ml-2 flex-shrink-0"
+                title="Copy command"
+              >
+                {copiedIdx === 1 ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+              </button>
+            </div>
+
+            {/* Command 2 */}
+            <div className="flex items-start justify-between group">
+              <div className="flex items-baseline space-x-2 flex-wrap">
+                <span className="text-emerald-400 font-bold">vidsnag</span>
+                <span className="text-orange-500 font-bold">$</span>
+                <span className="text-neutral-100">
+                  <span className="text-orange-400 font-semibold">vidsnag</span> &quot;https://...&quot; <span className="text-yellow-400 font-medium">--format</span> <span className="text-cyan-300">mp3</span>
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleCopy('vidsnag "https://..." --format mp3', 2)}
+                className="opacity-40 group-hover:opacity-100 text-neutral-400 hover:text-orange-400 transition-opacity p-1 ml-2 flex-shrink-0"
+                title="Copy command"
+              >
+                {copiedIdx === 2 ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+              </button>
+            </div>
+
+            {/* Command 3 */}
+            <div className="flex items-start justify-between group">
+              <div className="flex items-baseline space-x-2 flex-wrap">
+                <span className="text-emerald-400 font-bold">vidsnag</span>
+                <span className="text-orange-500 font-bold">$</span>
+                <span className="text-neutral-100">
+                  <span className="text-orange-400 font-semibold">vidsnag</span> <span className="text-yellow-400 font-medium">info</span> &quot;https://...&quot;
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleCopy('vidsnag info "https://..."', 3)}
+                className="opacity-40 group-hover:opacity-100 text-neutral-400 hover:text-orange-400 transition-opacity p-1 ml-2 flex-shrink-0"
+                title="Copy command"
+              >
+                {copiedIdx === 3 ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+              </button>
+            </div>
+
+            {/* Active prompt with blinking block cursor */}
+            <div className="flex items-center space-x-2 pt-1">
+              <span className="text-emerald-400 font-bold">vidsnag</span>
+              <span className="text-orange-500 font-bold">$</span>
+              <span className="w-2.5 h-4 bg-orange-500 animate-pulse inline-block" />
+            </div>
+          </div>
         </section>
 
         {/* Error Message */}
@@ -682,21 +787,6 @@ export default function HomePage() {
           </section>
         )}
 
-        {/* CLI Quick Reference Section */}
-        <section className="bg-neutral-950 rounded-2xl border border-neutral-800 p-5 text-xs text-neutral-400 space-y-2">
-          <div className="flex items-center space-x-2 font-semibold text-neutral-200">
-            <Terminal className="w-4 h-4 text-orange-500" />
-            <span>Prefer the Terminal? vidsnag CLI</span>
-          </div>
-          <p>
-            You can also run vidsnag directly from your command line:
-          </p>
-          <div className="bg-black text-neutral-200 font-mono p-3 rounded-lg text-xs overflow-x-auto space-y-1 border border-neutral-800">
-            <div><span className="text-orange-500">$</span> vidsnag &quot;https://www.youtube.com/watch?v=...&quot;</div>
-            <div><span className="text-orange-500">$</span> vidsnag &quot;https://...&quot; --format mp3</div>
-            <div><span className="text-orange-500">$</span> vidsnag info &quot;https://...&quot;</div>
-          </div>
-        </section>
       </main>
 
       {/* Footer */}
