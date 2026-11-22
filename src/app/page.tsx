@@ -304,7 +304,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-neutral-100 selection:bg-orange-500 selection:text-black">
+    <div className="min-h-screen flex flex-col bg-black text-neutral-100 selection:bg-orange-500 selection:text-black">
       {/* Navigation / Header */}
       <header className="border-b border-neutral-900 bg-black/90 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
@@ -312,27 +312,15 @@ export default function HomePage() {
             <div className="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center shadow-lg shadow-orange-500/20 text-black font-black text-xl tracking-wider">
               V
             </div>
-            <div>
-              <span className="font-extrabold text-xl tracking-tight text-orange-500">
-                vidsnag
-              </span>
-              <span className="text-xs ml-2 px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-400 font-semibold border border-orange-500/25">
-                v1.0
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-3 text-xs text-neutral-400">
-            <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-neutral-900 border border-neutral-800 font-mono">
-              <span className="w-2 h-2 rounded-full bg-orange-500 mr-2 animate-pulse" />
-              yt-dlp + ffmpeg
+            <span className="font-extrabold text-xl tracking-tight text-orange-500">
+              vidsnag
             </span>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 py-8 space-y-8">
+      <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-8 space-y-8">
         {/* System Health Alert (if degraded) */}
         {sysHealth && !sysHealth.healthy && (
           <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-200 flex items-start space-x-3">
@@ -712,7 +700,7 @@ export default function HomePage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-neutral-900 mt-16 py-6 text-center text-xs text-neutral-500">
+      <footer className="mt-auto border-t border-neutral-900 py-6 text-center text-xs text-neutral-500 w-full">
         <p>
           vidsnag — Open-source media downloader wrapper. Please ensure you have the right to download any content.
         </p>
