@@ -347,12 +347,12 @@ export default function HomePage() {
         )}
 
         {/* Hero Section */}
-        <div className="text-center space-y-3 pt-4">
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
-            Download Any Video or Audio
+        <div className="text-center space-y-4 pt-6">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white">
+            Download Videos &amp; Audio Instantly
           </h1>
-          <p className="text-neutral-400 max-w-xl mx-auto text-sm sm:text-base">
-            Sleek, high-speed downloader powered by <code className="px-1.5 py-0.5 rounded bg-neutral-900 border border-neutral-800 text-xs font-mono text-orange-400">yt-dlp</code> and <code className="px-1.5 py-0.5 rounded bg-neutral-900 border border-neutral-800 text-xs font-mono text-orange-400">ffmpeg</code>. Supports YouTube, Vimeo, TikTok, SoundCloud, and 1,000+ sites.
+          <p className="text-neutral-300 max-w-xl mx-auto text-base sm:text-lg lg:text-xl">
+            Grab any media you love in seconds with a fast, intuitive downloader built for the modern web.
           </p>
         </div>
 

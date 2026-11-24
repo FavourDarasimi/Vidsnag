@@ -88,7 +88,7 @@ export async function downloadVideo(options: DownloadOptions): Promise<DownloadR
     '--no-warnings',
     '--progress',
     '--progress-template',
-    'download:PROGRESS|%(progress._percent_str)s|%(progress._total_bytes_str)s|%(progress._speed_str)s|%(progress._eta_str)s|%(progress.downloaded_bytes)s|%(progress.total_bytes)s',
+    'download:PROGRESS|{progress._percent_str}|{progress._total_bytes_str}|{progress._speed_str}|{progress._eta_str}|{progress.downloaded_bytes}|{progress.total_bytes}',
     '--print',
     'after_move:filepath',
   ];
@@ -210,11 +210,13 @@ export async function downloadVideo(options: DownloadOptions): Promise<DownloadR
 
     child.stdout.on('data', (chunk) => {
       stdoutBuffer += chunk.toString();
-      const lines = stdoutBuffer.split('\n');
-      // Keep last partial line in buffer
+      // Split on both newlines and carriage returns; yt-dlp uses \r to overwrite progress lines
+      const lines = stdoutBuffer.split(/[\r\n]+/);
       stdoutBuffer = lines.pop() || '';
       for (const line of lines) {
-        parseProgressLine(line);
+        if (line.trim()) {
+          parseProgressLine(line);
+        }
       }
     });
 

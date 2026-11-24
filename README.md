@@ -1,197 +1,113 @@
-# vidsnag
+# Vidsnag
 
-**vidsnag** is a media downloader offering both an interactive command-line interface (CLI) and a web application built with TypeScript and Next.js (App Router). It acts as a wrapper around [`yt-dlp`](https://github.com/yt-dlp/yt-dlp) and [`ffmpeg`](https://ffmpeg.org/), sharing a single core download module across both interfaces.
+A fast, secure media downloader that gives you both a polished web interface and a powerful command-line tool. Download videos and audio from your favorite sites in the format and quality you want.
 
----
+## Overview
 
-## Architecture: Shared Core Module
+Vidsnag helps developers and power users download online videos and audio without jumping between scattered tools. It combines a clean web dashboard with a no-nonsense terminal command, so you can grab content from your browser or your shell. Whether you need a quick MP3 or a high-quality MP4, it handles the heavy lifting and keeps you informed with real-time progress.
 
-Both the CLI (`src/cli/index.ts`) and the Next.js API routes (`src/app/api/`) import their business logic directly from `src/core/`. This architecture guarantees a **single source of truth** for:
+## Installation
 
-```
-vidsnag/
-├── src/
-│   ├── core/                    # Shared core logic (CLI & Web UI)
-│   │   ├── types.ts             # Video metadata & progress event schemas
-│   │   ├── validate.ts          # Zod validation & path traversal defenses
-│   │   ├── check-deps.ts        # System dependency detector (yt-dlp & ffmpeg)
-│   │   ├── info.ts              # Metadata scraper (`yt-dlp --dump-json`)
-│   │   ├── downloader.ts        # Streaming process spawner with progress hooks
-│   │   ├── concurrency.ts       # Queue manager for limiting concurrent tasks
-│   │   ├── rate-limit.ts        # Sliding-window in-memory IP rate limiter
-│   │   ├── cleanup.ts           # Automatic file retention garbage collection
-│   │   └── index.ts             # Unified barrel export
-│   ├── cli/
-│   │   └── index.ts             # CLI entry point (Commander.js + cli-progress)
-│   └── app/                     # Next.js 14 App Router
-│       ├── page.tsx             # Interactive web UI (Dark mode, SSE progress)
-│       ├── api/info/route.ts    # POST: URL -> Video metadata
-│       ├── api/download/route.ts# POST: Server-Sent Events (SSE) download stream
-│       ├── api/files/[id]/route.ts # GET: Safe file delivery with traversal protection
-│       └── api/health/route.ts  # GET: Environment & dependency status check
-├── downloads/                   # Default output directory (gitignored)
-├── Dockerfile                   # Docker container with yt-dlp, ffmpeg & Node.js
-└── package.json
+1. Clone the repository:
+
+```bash
+git clone https://github.com/FavourDarasimi/Vidsnag.git
+cd Vidsnag
 ```
 
----
+2. Install dependencies:
 
-## Prerequisites
+```bash
+npm install
+```
 
-Before running `vidsnag`, ensure the following tools are installed on your system:
+3. Build the project:
 
-1. **Node.js**: v18.17.0+ or v20+
-2. **yt-dlp**: Required for media extraction and downloading.
-   - **Linux**: `pip install --user yt-dlp` or `sudo curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp && sudo chmod a+rx /usr/local/bin/yt-dlp`
-   - **macOS**: `brew install yt-dlp`
-   - **Windows**: `winget install yt-dlp`
-3. **ffmpeg**: Required for audio extraction (`mp3`) and video stream merging (`mp4`, `webm`).
-   - **Linux (Ubuntu/Debian)**: `sudo apt install ffmpeg`
-   - **Linux (Fedora/RHEL)**: `sudo dnf install ffmpeg`
-   - **macOS**: `brew install ffmpeg`
-   - **Windows**: `winget install Gyan.FFmpeg`
+```bash
+npm run build
+```
 
----
+4. Make sure `yt-dlp` and `ffmpeg` are installed on your system, since Vidsnag uses them under the hood for media extraction and conversion.
 
-## Installation & Setup
+## Usage
 
-1. **Clone and install dependencies**:
-   ```bash
-   git clone <repo-url> vidsnag
-   cd vidsnag
-   npm install
-   ```
+### Web UI
 
-2. **Environment Variables**:
-   Copy the example `.env.example` file:
-   ```bash
-   cp .env.example .env
-   ```
-   Variables available:
-   - `DOWNLOAD_DIR`: Path where media files are saved (default: `./downloads`).
-   - `PORT`: HTTP port for web interface (default: `3000`).
-   - `MAX_CONCURRENT`: Maximum simultaneous active downloads (default: `2`).
-   - `FILE_RETENTION_HOURS`: Hours before downloaded files are automatically purged (default: `1`).
-   - `RATE_LIMIT_PER_MINUTE`: Allowed API calls per IP per minute (default: `60`).
+Start the development server:
 
-3. **Build both Web UI and CLI**:
-   ```bash
-   npm run build
-   ```
+```bash
+npm run dev
+```
 
-4. **Globally link the CLI**:
-   To use the `vidsnag` command anywhere on your terminal:
-   ```bash
-   npm link
-   ```
-   *(Or run locally using `npm run cli -- <args>`)*.
+Then open `http://localhost:3000` in your browser. Paste a video URL, click "Fetch Info", choose your format and quality, and download.
 
----
+### CLI
 
-## CLI Usage
+Download a video with the best quality:
 
-### 1. Download with sensible defaults (best quality MP4)
 ```bash
 vidsnag "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
 ```
 
-### 2. Audio-only (MP3)
+Download audio only:
+
 ```bash
 vidsnag "https://www.youtube.com/watch?v=dQw4w9WgXcQ" --format mp3
 ```
 
-### 3. Specify video quality (e.g. 720p, 1080p)
+Specify a specific quality:
+
 ```bash
 vidsnag "https://www.youtube.com/watch?v=dQw4w9WgXcQ" --quality 720p
 ```
 
-### 4. Custom output folder and filename
-```bash
-vidsnag "https://www.youtube.com/watch?v=dQw4w9WgXcQ" --output ./my-videos --filename "song.mp4"
-```
+Inspect video metadata without downloading:
 
-### 5. Inspect video information without downloading
 ```bash
 vidsnag info "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
 ```
-Prints title, uploader, duration, thumbnail URL, and all available format resolutions.
 
-### 6. Start the Web Interface
+Launch the web interface from the terminal:
+
 ```bash
 vidsnag serve
-# Or specify a custom port:
-vidsnag serve --port 8080
 ```
 
-### CLI Features:
-- Real-time terminal progress bar (percentage, download speed, ETA, processing stage).
-- Automatic verification of `yt-dlp` and `ffmpeg` with clear operating system installation instructions if missing.
-- Safe non-zero exit codes upon failures.
-- Built-in `--help` for all commands.
+## Features
 
----
+- **Dual interface**: Use the sleek web dashboard or the fast CLI, both backed by the same core engine.
+- **Real-time progress**: Watch downloads progress live with Server-Sent Events in the browser.
+- **Flexible formats**: Download as MP4, WebM, or MP3.
+- **Quality control**: Choose from best available or specific resolutions like 1080p, 720p, and 480p.
+- **Concurrency management**: Limits simultaneous downloads to prevent system overload.
+- **Rate limiting**: Protects API routes from abuse.
+- **Automatic cleanup**: Removes old downloads based on a configurable retention window.
+- **Secure file serving**: Path traversal protection keeps downloaded files safely isolated.
 
-## Web UI Usage
+## Technologies Used
 
-1. Start development server:
-   ```bash
-   npm run dev
-   ```
-   Or production server:
-   ```bash
-   npm start
-   ```
-2. Open [http://localhost:3000](http://localhost:3000) in your browser.
+| Technology | Description | Link |
+|---|---|---|
+| TypeScript | Typed JavaScript for safer, maintainable code | [https://www.typescriptlang.org/](https://www.typescriptlang.org/) |
+| Next.js | React framework for web UI and API routes | [https://nextjs.org/](https://nextjs.org/) |
+| React | UI library for building the interface | [https://react.dev/](https://react.dev/) |
+| Tailwind CSS | Utility-first CSS framework | [https://tailwindcss.com/](https://tailwindcss.com/) |
+| Zod | Schema validation for inputs | [https://zod.dev/](https://zod.dev/) |
+| Commander.js | CLI argument parsing | [https://github.com/tj/commander.js](https://github.com/tj/commander.js) |
+| yt-dlp | Media extraction and downloading | [https://github.com/yt-dlp/yt-dlp](https://github.com/yt-dlp/yt-dlp) |
+| ffmpeg | Audio/video processing and conversion | [https://ffmpeg.org/](https://ffmpeg.org/) |
 
-### Web Features:
-- **Single Page App**: Clean, responsive layout with Tailwind CSS.
-- **Dark Mode**: Seamless toggle between dark and light themes with persistence.
-- **Video Metadata Preview**: Displays high-resolution thumbnail, duration badge, title, author, and direct link.
-- **Format & Quality Selectors**: Choose between MP4, WebM, and MP3 formats, and select from detected resolutions (e.g. 1080p, 720p, 480p).
-- **Server-Sent Events (SSE)**: Streams real-time progress from `yt-dlp` to an animated UI progress bar with live download speed, ETA, and status indicators.
-- **Session History**: Maintains a history of completed downloads in the session with direct download links.
-- **Accessible & Responsive**: Keyboard navigable, accessible form labels, mobile-friendly.
+## Author
 
----
+- X (Twitter): [https://x.com/code_with_dara](https://x.com/code_with_dara)
 
-## Security & Reliability Highlights
+## Badges
 
-1. **No Shell Injection**:
-   All child processes are spawned directly via `child_process.spawn(cmd, args, { shell: false })` using an array of arguments. Commands are never passed through a shell interpreter or constructed via string concatenation.
-2. **URL Sanitization & Validation**:
-   Strict `zod` schema ensures only valid `http:` and `https:` URLs are accepted, preventing arbitrary protocol manipulation.
-3. **Directory Traversal Protection**:
-   The file serving route (`/api/files/[id]`) validates IDs and enforces canonical path boundary checking (`resolveSafePath`). Attempting to request files with `../` or arbitrary system paths is blocked.
-4. **Rate Limiting**:
-   In-memory sliding-window limiter guards all API endpoints against abuse and denial of service.
-5. **Concurrency Management**:
-   Configurable queue (`MAX_CONCURRENT`) prevents memory and CPU exhaustion by limiting concurrent `yt-dlp` download processes.
-6. **Automatic Cleanup**:
-   Background garbage collection removes files older than the retention period (default: 1 hour) to preserve disk space.
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![yt-dlp](https://img.shields.io/badge/yt--dlp-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://github.com/yt-dlp/yt-dlp)
 
----
-
-## Docker Deployment
-
-Build and run with Docker:
-
-```bash
-# Build the Docker image
-docker build -t vidsnag .
-
-# Run the container
-docker run -d \
-  -p 3000:3000 \
-  -v $(pwd)/downloads:/app/downloads \
-  --name vidsnag-app \
-  vidsnag
-```
-
-Open [http://localhost:3000](http://localhost:3000) to use the web application.
-
----
-
-## Legal & Ethical Disclaimer
-
-**vidsnag** is intended solely for downloading content you own, open-access public domain media, or media for which you have explicit permission from the copyright owner. The developers and contributors do not endorse or encourage unauthorized downloading or distribution of copyrighted material. Users are solely responsible for ensuring compliance with applicable copyright laws and terms of service.
-# Vidsnag
+[![Readme was generated by Dokugen](https://img.shields.io/badge/Readme%20was%20generated%20by-Dokugen-brightgreen)](https://dokugen.samueltuoyo.com)
