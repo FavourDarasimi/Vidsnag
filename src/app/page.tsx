@@ -12,7 +12,6 @@ import {
   User,
   ExternalLink,
   Loader2,
-  Trash2,
   Save,
   RotateCcw,
   Sparkles,
@@ -22,18 +21,6 @@ import {
   Check,
 } from 'lucide-react';
 import { VideoInfo } from '@/core/types';
-
-interface HistoryItem {
-  id: string;
-  title: string;
-  format: string;
-  quality: string;
-  filename: string;
-  fileSize: number;
-  downloadUrl: string;
-  thumbnail?: string;
-  timestamp: number;
-}
 
 interface DownloadProgress {
   status: 'idle' | 'starting' | 'downloading' | 'processing' | 'completed' | 'error';
@@ -68,9 +55,6 @@ export default function HomePage() {
     totalBytes: 0,
   });
 
-  // Session history
-  const [history, setHistory] = useState<HistoryItem[]>([]);
-
   // System health
   const [sysHealth, setSysHealth] = useState<{
     healthy: boolean;
@@ -92,16 +76,6 @@ export default function HomePage() {
   const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
-    // Load session history
-    try {
-      const savedHistory = sessionStorage.getItem('vidsnag_history');
-      if (savedHistory) {
-        setHistory(JSON.parse(savedHistory));
-      }
-    } catch {
-      // ignore
-    }
-
     // Check system health
     fetch('/api/health')
       .then((res) => res.json())
@@ -253,29 +227,6 @@ export default function HomePage() {
                 downloadId: data.downloadId,
                 downloadUrl,
               });
-
-              // Add to session history
-              const newItem: HistoryItem = {
-                id: data.downloadId,
-                title: videoInfo?.title || data.filename || 'Downloaded Media',
-                format: selectedFormat,
-                quality: selectedQuality,
-                filename: data.filename,
-                fileSize: data.fileSize,
-                downloadUrl,
-                thumbnail: videoInfo?.thumbnail,
-                timestamp: Date.now(),
-              };
-
-              setHistory((prev) => {
-                const updated = [newItem, ...prev.filter((i) => i.id !== newItem.id)].slice(0, 15);
-                try {
-                  sessionStorage.setItem('vidsnag_history', JSON.stringify(updated));
-                } catch {
-                  // ignore
-                }
-                return updated;
-              });
             } else if (eventType === 'error') {
               setDownloadProgress((prev) => ({
                 ...prev,
@@ -296,15 +247,6 @@ export default function HomePage() {
         status: 'error',
         error: message,
       }));
-    }
-  };
-
-  const handleClearHistory = () => {
-    setHistory([]);
-    try {
-      sessionStorage.removeItem('vidsnag_history');
-    } catch {
-      // ignore
     }
   };
 
@@ -392,110 +334,6 @@ export default function HomePage() {
             </button>
           </form>
         </section>
-
-        {/* Terminal Component directly under link input */}
-        <section className="rounded-2xl border border-neutral-800 bg-[#080808] overflow-hidden shadow-2xl shadow-black/70">
-          {/* Terminal Window Title Bar */}
-          <div className="bg-neutral-900/95 border-b border-neutral-800/80 px-4 py-2.5 flex items-center justify-between select-none">
-            <div className="flex items-center space-x-2">
-              <span className="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm" />
-              <span className="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm" />
-              <span className="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm" />
-            </div>
-            <div className="flex items-center space-x-2 text-xs text-neutral-400 font-mono">
-              <Terminal className="w-3.5 h-3.5 text-orange-500" />
-              <span>vidsnag</span>
-            </div>
-            <div className="w-12 text-right">
-              <span className="text-[10px] text-neutral-500 font-mono uppercase tracking-wider">bash</span>
-            </div>
-          </div>
-
-          {/* Terminal Body */}
-          <div className="p-4 sm:p-5 font-mono text-xs sm:text-sm text-neutral-200 space-y-3.5 overflow-x-auto">
-            {/* Comment line */}
-            <div className="text-neutral-500 text-[11px] sm:text-xs">
-              # You can also download directly from your terminal
-            </div>
-
-            {/* Command 1 */}
-            <div className="flex items-start justify-between group">
-              <div className="flex items-baseline space-x-2 flex-wrap">
-                <span className="text-emerald-400 font-bold">vidsnag</span>
-                <span className="text-neutral-500">:</span>
-                <span className="text-blue-400 font-semibold">~</span>
-                <span className="text-orange-500 font-bold">$</span>
-                <span className="text-neutral-100">
-                  <span className="text-orange-400 font-semibold">vidsnag</span> &quot;https://www.youtube.com/watch?v=...&quot;
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={() => handleCopy('vidsnag "https://www.youtube.com/watch?v=..."', 1)}
-                className="opacity-40 group-hover:opacity-100 text-neutral-400 hover:text-orange-400 transition-opacity p-1 ml-2 flex-shrink-0"
-                title="Copy command"
-              >
-                {copiedIdx === 1 ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-              </button>
-            </div>
-
-            {/* Command 2 */}
-            <div className="flex items-start justify-between group">
-              <div className="flex items-baseline space-x-2 flex-wrap">
-                <span className="text-emerald-400 font-bold">vidsnag</span>
-                <span className="text-orange-500 font-bold">$</span>
-                <span className="text-neutral-100">
-                  <span className="text-orange-400 font-semibold">vidsnag</span> &quot;https://...&quot; <span className="text-yellow-400 font-medium">--format</span> <span className="text-cyan-300">mp3</span>
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={() => handleCopy('vidsnag "https://..." --format mp3', 2)}
-                className="opacity-40 group-hover:opacity-100 text-neutral-400 hover:text-orange-400 transition-opacity p-1 ml-2 flex-shrink-0"
-                title="Copy command"
-              >
-                {copiedIdx === 2 ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-              </button>
-            </div>
-
-            {/* Command 3 */}
-            <div className="flex items-start justify-between group">
-              <div className="flex items-baseline space-x-2 flex-wrap">
-                <span className="text-emerald-400 font-bold">vidsnag</span>
-                <span className="text-orange-500 font-bold">$</span>
-                <span className="text-neutral-100">
-                  <span className="text-orange-400 font-semibold">vidsnag</span> <span className="text-yellow-400 font-medium">info</span> &quot;https://...&quot;
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={() => handleCopy('vidsnag info "https://..."', 3)}
-                className="opacity-40 group-hover:opacity-100 text-neutral-400 hover:text-orange-400 transition-opacity p-1 ml-2 flex-shrink-0"
-                title="Copy command"
-              >
-                {copiedIdx === 3 ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-              </button>
-            </div>
-
-            {/* Active prompt with blinking block cursor */}
-            <div className="flex items-center space-x-2 pt-1">
-              <span className="text-emerald-400 font-bold">vidsnag</span>
-              <span className="text-orange-500 font-bold">$</span>
-              <span className="w-2.5 h-4 bg-orange-500 animate-pulse inline-block" />
-            </div>
-          </div>
-        </section>
-
-        {/* Error Message */}
-        {infoError && (
-          <div className="p-4 rounded-xl border border-rose-500/30 bg-rose-500/10 text-rose-300 flex items-start space-x-3 text-sm animate-fadeIn">
-            <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5 text-rose-500" />
-            <div className="flex-1">
-              <p className="font-semibold">Unable to fetch video</p>
-              <p className="mt-0.5 text-xs sm:text-sm opacity-90">{infoError}</p>
-            </div>
-          </div>
-        )}
 
         {/* Video Info Preview & Options Card */}
         {videoInfo && (
@@ -630,6 +468,110 @@ export default function HomePage() {
           </section>
         )}
 
+        {/* Error Message */}
+        {infoError && (
+          <div className="p-4 rounded-xl border border-rose-500/30 bg-rose-500/10 text-rose-300 flex items-start space-x-3 text-sm animate-fadeIn">
+            <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5 text-rose-500" />
+            <div className="flex-1">
+              <p className="font-semibold">Unable to fetch video</p>
+              <p className="mt-0.5 text-xs sm:text-sm opacity-90">{infoError}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Terminal Component directly under link input */}
+        <section className="rounded-2xl border border-neutral-800 bg-[#080808] overflow-hidden shadow-2xl shadow-black/70">
+          {/* Terminal Window Title Bar */}
+          <div className="bg-neutral-900/95 border-b border-neutral-800/80 px-4 py-2.5 flex items-center justify-between select-none">
+            <div className="flex items-center space-x-2">
+              <span className="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm" />
+              <span className="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm" />
+              <span className="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm" />
+            </div>
+            <div className="flex items-center space-x-2 text-xs text-neutral-400 font-mono">
+              <Terminal className="w-3.5 h-3.5 text-orange-500" />
+              <span>vidsnag</span>
+            </div>
+            <div className="w-12 text-right">
+              <span className="text-[10px] text-neutral-500 font-mono uppercase tracking-wider">bash</span>
+            </div>
+          </div>
+
+          {/* Terminal Body */}
+          <div className="p-4 sm:p-5 font-mono text-xs sm:text-sm text-neutral-200 space-y-3.5 overflow-x-auto">
+            {/* Comment line */}
+            <div className="text-neutral-500 text-[11px] sm:text-xs">
+              # You can also download directly from your terminal
+            </div>
+
+            {/* Command 1 */}
+            <div className="flex items-start justify-between group">
+              <div className="flex items-baseline space-x-2 flex-wrap">
+                <span className="text-emerald-400 font-bold">vidsnag</span>
+                <span className="text-neutral-500">:</span>
+                <span className="text-blue-400 font-semibold">~</span>
+                <span className="text-orange-500 font-bold">$</span>
+                <span className="text-neutral-100">
+                  <span className="text-orange-400 font-semibold">vidsnag</span> &quot;https://www.youtube.com/watch?v=...&quot;
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleCopy('vidsnag "https://www.youtube.com/watch?v=..."', 1)}
+                className="opacity-40 group-hover:opacity-100 text-neutral-400 hover:text-orange-400 transition-opacity p-1 ml-2 flex-shrink-0"
+                title="Copy command"
+              >
+                {copiedIdx === 1 ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+              </button>
+            </div>
+
+            {/* Command 2 */}
+            <div className="flex items-start justify-between group">
+              <div className="flex items-baseline space-x-2 flex-wrap">
+                <span className="text-emerald-400 font-bold">vidsnag</span>
+                <span className="text-orange-500 font-bold">$</span>
+                <span className="text-neutral-100">
+                  <span className="text-orange-400 font-semibold">vidsnag</span> &quot;https://...&quot; <span className="text-yellow-400 font-medium">--format</span> <span className="text-cyan-300">mp3</span>
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleCopy('vidsnag "https://..." --format mp3', 2)}
+                className="opacity-40 group-hover:opacity-100 text-neutral-400 hover:text-orange-400 transition-opacity p-1 ml-2 flex-shrink-0"
+                title="Copy command"
+              >
+                {copiedIdx === 2 ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+              </button>
+            </div>
+
+            {/* Command 3 */}
+            <div className="flex items-start justify-between group">
+              <div className="flex items-baseline space-x-2 flex-wrap">
+                <span className="text-emerald-400 font-bold">vidsnag</span>
+                <span className="text-orange-500 font-bold">$</span>
+                <span className="text-neutral-100">
+                  <span className="text-orange-400 font-semibold">vidsnag</span> <span className="text-yellow-400 font-medium">info</span> &quot;https://...&quot;
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleCopy('vidsnag info "https://..."', 3)}
+                className="opacity-40 group-hover:opacity-100 text-neutral-400 hover:text-orange-400 transition-opacity p-1 ml-2 flex-shrink-0"
+                title="Copy command"
+              >
+                {copiedIdx === 3 ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+              </button>
+            </div>
+
+            {/* Active prompt with blinking block cursor */}
+            <div className="flex items-center space-x-2 pt-1">
+              <span className="text-emerald-400 font-bold">vidsnag</span>
+              <span className="text-orange-500 font-bold">$</span>
+              <span className="w-2.5 h-4 bg-orange-500 animate-pulse inline-block" />
+            </div>
+          </div>
+        </section>
+
         {/* Live Download Status & Progress (SSE) */}
         {downloadProgress.status !== 'idle' && (
           <section className="bg-neutral-950 rounded-2xl border border-neutral-800 p-5 sm:p-6 shadow-xl shadow-black/40 space-y-4 animate-fadeIn">
@@ -728,62 +670,6 @@ export default function HomePage() {
                 </button>
               </div>
             )}
-          </section>
-        )}
-
-        {/* Session Download History */}
-        {history.length > 0 && (
-          <section className="space-y-4 pt-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-bold text-base sm:text-lg text-white flex items-center space-x-2">
-                <span>Recent Downloads</span>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-neutral-900 border border-neutral-800 text-orange-400">
-                  {history.length}
-                </span>
-              </h3>
-              <button
-                onClick={handleClearHistory}
-                className="text-xs text-neutral-500 hover:text-rose-400 flex items-center space-x-1 transition-colors"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                <span>Clear session</span>
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 gap-2.5">
-              {history.map((item) => (
-                <div
-                  key={item.id}
-                  className="bg-neutral-950 rounded-xl border border-neutral-800/80 p-3 sm:p-4 flex items-center justify-between gap-3 hover:border-neutral-700 transition-colors"
-                >
-                  <div className="flex items-center space-x-3 min-w-0">
-                    <div className="w-9 h-9 rounded-lg bg-orange-500/10 text-orange-400 flex items-center justify-center flex-shrink-0">
-                      {item.format === 'mp3' ? <Music className="w-4 h-4" /> : <Film className="w-4 h-4" />}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="font-medium text-xs sm:text-sm text-neutral-100 truncate">
-                        {item.title}
-                      </p>
-                      <div className="flex items-center space-x-2 text-[11px] text-neutral-400 mt-0.5">
-                        <span className="uppercase font-semibold text-orange-400">{item.format}</span>
-                        {item.quality && <span>• {item.quality}</span>}
-                        <span>• {formatFileSize(item.fileSize)}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <a
-                    href={item.downloadUrl}
-                    download={item.filename}
-                    className="p-2 sm:px-3 sm:py-1.5 rounded-lg bg-neutral-900 hover:bg-orange-500 hover:text-black text-neutral-200 text-xs font-medium flex items-center space-x-1.5 transition-colors flex-shrink-0"
-                    title="Download file"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Save</span>
-                  </a>
-                </div>
-              ))}
-            </div>
           </section>
         )}
 
